@@ -15,6 +15,11 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true,
       },
+      role: {
+        type: String,
+        required: true,
+        default: 'user'
+      },
       avatar: {
         type: String,
         default: 'https://smilewide.s3.eu-central-1.amazonaws.com/posts/default-user-img.jpeg',

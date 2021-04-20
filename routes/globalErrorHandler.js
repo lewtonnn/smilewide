@@ -7,7 +7,7 @@ module.exports = app => {
   });
 
 // global error handler
-  app.use((err, req, res) => {
+  app.use((err, req, res, next) => {
     console.log(err);
     const statusCode = err.statusCode || 500;
     return res.status(statusCode).json({ error: err.message });

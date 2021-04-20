@@ -28,7 +28,7 @@ router.post('/login', ash(async (req, res, next) => {
   const user = await User.findOne({ email });
 
   if (!user) {
-    return next(createError(404, 'Incorrect email or password'));
+     throw createError(404, 'Incorrect email or password');
   }
 
   const passwordCorrect = await bcrypt.compare(password, user.password);
@@ -43,7 +43,7 @@ router.post('/login', ash(async (req, res, next) => {
 
     return res.json({ token });
   }
-  return next(createError(404, 'Incorrect email or password'));
+  throw createError(404, 'Incorrect email or password');
 }));
 
 module.exports = router;

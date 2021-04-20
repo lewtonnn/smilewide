@@ -14,7 +14,7 @@ const PostSchema = new mongoose.Schema({
         type: String,
         required: true,
       },
-      section: {
+      sectionId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'section',
         required: true,
