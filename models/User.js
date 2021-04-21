@@ -14,11 +14,12 @@ const UserSchema = new mongoose.Schema({
       name: {
         type: String,
         required: true,
+        unique: true,
       },
       role: {
         type: String,
         required: true,
-        default: 'user'
+        default: 'user',
       },
       avatar: {
         type: String,

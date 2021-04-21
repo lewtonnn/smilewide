@@ -1,12 +1,25 @@
 const router = require('express').Router();
 const passport = require('passport');
+const createError = require('http-errors');
 require('../../../config/passport');
+const { check, validationResult } = require('express-validator');
 const Comments = require('../../../models/Comment');
 const ash = require('../../../helpers/asyncHandler');
 
+const lang = process.env.LANGUAGE;
+const dictionary = require('../../../config/dictionary')[lang];
+
 router.post('/',
-    passport.authenticate('jwt', { session: false }),
+    [
+      passport.authenticate('jwt', { session: false }),
+      check('text', dictionary.comments.invalidText).isLength({ min: 3 }),
+    ],
     ash(async (req, res) => {
+
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
 
       const { post, text } = req.body;
 
@@ -50,6 +63,15 @@ router.get('/', ash(async (req, res) => {
   }
 
   res.json({ payload: comments, total });
+}));
+
+router.get('/:commentId', ash(async (req, res) => {
+
+  const commentId = req.params.commentId;
+
+  const comment = await Comments.findById(commentId);
+
+  res.json({ payload: comment });
 }));
 
 module.exports = router;

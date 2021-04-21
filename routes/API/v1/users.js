@@ -2,33 +2,45 @@ require('dotenv').config({ path: '../../../.env' });
 const router = require('express').Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const passport = require('passport');
 const createError = require('http-errors');
-const User = require('../../../models/User');
+const { check, validationResult } = require('express-validator');
+const Users = require('../../../models/User');
 const ash = require('../../../helpers/asyncHandler');
 
-router.post('/', ash(async (req, res) => {
+const lang = process.env.LANGUAGE;
+const dictionary = require('../../../config/dictionary')[lang];
 
-  const { email, password } = req.body;
-  const cryptedPassword = await bcrypt.hash(password, 10);
+router.post('/',
+    [
+      check('email', dictionary.users.invalidEmail).isEmail(),
+      check('password', dictionary.users.invalidPassword).isLength({ min: 6 }),
+      check('name', dictionary.users.invalidName).notEmpty(),
+    ],
+    ash(async (req, res) => {
 
-  const user = await new User({ email, password: cryptedPassword });
-  user.save();
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
 
-  res.json({ _id: user._id, email: user.email });
-}));
+      const { email, password } = req.body;
+      const cryptedPassword = await bcrypt.hash(password, 10);
 
-router.get('/', (req, res) => {
-  res.json({ msg: 'ok api/v1/users' });
-});
+      const user = await new Users({ email, password: cryptedPassword });
+      user.save();
+
+      res.json({ _id: user._id, email: user.email });
+    }));
 
 router.post('/login', ash(async (req, res, next) => {
 
   const { email, password } = req.body;
 
-  const user = await User.findOne({ email });
+  const user = await Users.findOne({ email });
 
   if (!user) {
-     throw createError(404, 'Incorrect email or password');
+    throw createError(404, dictionary.users.loginError);
   }
 
   const passwordCorrect = await bcrypt.compare(password, user.password);
@@ -43,7 +55,50 @@ router.post('/login', ash(async (req, res, next) => {
 
     return res.json({ token });
   }
-  throw createError(404, 'Incorrect email or password');
+  throw createError(404, dictionary.users.loginError);
 }));
+
+router.delete('/:userId', passport.authenticate('jwt', { session: false }),
+    ash(async (req, res) => {
+
+      const user = await Users.findById(req.params.userId);
+
+      const avtiveUser = await Users.findById(req.user._id);
+
+      if (user._id.toString() === req.user._id.toString()
+          || avtiveUser.role === 'admin') {
+        await user.remove();
+      } else {
+        throw createError(403, 'Unauthorized');
+      }
+
+      res.json({ msg: 'Deleted' });
+    }));
+
+router.get('/', ash(async (req, res) => {
+
+  let { offset, limit } = req.body;
+  if (!offset) offset = 0;
+  if (!limit) limit = 50;
+
+  let total = 0;
+  let users = null;
+
+  total = await Comments.estimatedDocumentCount();
+  users = await Users.find().skip(+offset).limit(+limit);
+
+  res.json({ payload: users, total });
+}));
+
+router.get('/:userId', ash(async (req, res) => {
+
+  const userId = req.params.userId;
+
+  const user = await Users.findById(userId);
+
+  res.json({ payload: user });
+}));
+
+module.exports = router;
 
 module.exports = router;

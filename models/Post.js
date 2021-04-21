@@ -10,6 +10,9 @@ const PostSchema = new mongoose.Schema({
         type: String,
         required: true,
       },
+      description: {
+        type: String,
+      },
       url: {
         type: String,
         required: true,
@@ -19,6 +22,11 @@ const PostSchema = new mongoose.Schema({
         ref: 'section',
         required: true,
       },
+      tags: [
+        {
+          type: String,
+        },
+      ],
       likes: [
         {
           user: {
