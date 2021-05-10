@@ -7,7 +7,7 @@ const Comments = require('../../../models/Comment');
 const ash = require('../../../helpers/asyncHandler');
 
 const lang = process.env.LANGUAGE;
-const dictionary = require('../../../config/dictionary')[lang];
+const dictionary = require('../../../config/errorMessages');
 
 router.post('/',
     [
@@ -73,5 +73,34 @@ router.get('/:commentId', ash(async (req, res) => {
 
   res.json({ payload: comment });
 }));
+
+router.post('/:commentId/like', passport.authenticate('jwt', { session: false }),
+    ash(async (req, res) => {
+
+      const commentId = req.params.commentId;
+      const userId = req.user._id;
+
+      const comment = await Comments.findById(commentId);
+
+      let alreadyLiked = false;
+
+      comment.likes.forEach((like, index) => {
+        console.log(index);
+        if (like._id.toString() === userId.toString()) {
+          console.log('id ', like._id);
+          comment.likes.splice(index, 1);
+          alreadyLiked = true;
+        }
+        if(alreadyLiked) return false;
+      });
+
+      if (!alreadyLiked) {
+        comment.likes.push(userId);
+      }
+
+      await comment.save();
+
+      res.json({ payload: comment });
+    }));
 
 module.exports = router;

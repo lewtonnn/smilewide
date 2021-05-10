@@ -20,24 +20,6 @@ const CommentSchema = new mongoose.Schema({
         ref: 'user',
       },
     }],
-  comments: [
-    {
-      author: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'user',
-      },
-      text: {
-        type: String,
-        required: true,
-      },
-      likes: [
-        {
-          user: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'user',
-          },
-        }],
-    }],
   created_at: {
     type: Date,
     default: Date.now(),

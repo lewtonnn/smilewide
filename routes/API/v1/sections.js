@@ -9,7 +9,7 @@ const createError = require('http-errors');
 const ash = require('../../../helpers/asyncHandler');
 
 const lang = process.env.LANGUAGE;
-const dictionary = require('../../../config/dictionary')[lang];
+const dictionary = require('../../../config/errorMessages');
 
 const fileUploader = initFileUploader('/sections');
 

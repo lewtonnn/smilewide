@@ -9,7 +9,7 @@ const Users = require('../../../models/User');
 const ash = require('../../../helpers/asyncHandler');
 
 const lang = process.env.LANGUAGE;
-const dictionary = require('../../../config/dictionary')[lang];
+const dictionary = require('../../../config/errorMessages');
 
 router.post('/',
     [

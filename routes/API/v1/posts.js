@@ -9,7 +9,7 @@ const createError = require('http-errors');
 const ash = require('../../../helpers/asyncHandler');
 
 const lang = process.env.LANGUAGE;
-const dictionary = require('../../../config/dictionary')[lang];
+const dictionary = require('../../../config/errorMessages');
 
 const fileUploader = initFileUploader('/posts');
 
@@ -23,11 +23,21 @@ router.post('/',
     ],
     ash(async (req, res) => {
 
-      const { title, sectionId } = req.body;
+      const { title, sectionId, description, tags } = req.body;
       const url = req.files[0].location;
 
+      let tagArray = tags.split(',');
+      tagArray = tagArray.map((tag) => tag.trim());
+
       const post = await new Posts(
-          { title, sectionId, url, author: req.user._id });
+          {
+            title,
+            sectionId,
+            url,
+            description,
+            tags: tagArray,
+            author: req.user._id,
+          });
       await post.save();
 
       res.json(post);
@@ -82,5 +92,34 @@ router.get('/:postId', ash(async (req, res) => {
 
   res.json({ payload: post });
 }));
+
+router.post('/:postId/like', passport.authenticate('jwt', { session: false }),
+    ash(async (req, res) => {
+
+      const postId = req.params.postId;
+      const userId = req.user._id;
+
+      const post = await Posts.findById(postId);
+
+      let alreadyLiked = false;
+
+      post.likes.forEach((like, index) => {
+        console.log(index);
+        if (like._id.toString() === userId.toString()) {
+          console.log('id ', like._id);
+          post.likes.splice(index, 1);
+          alreadyLiked = true;
+        }
+        if(alreadyLiked) return false;
+      });
+
+      if (!alreadyLiked) {
+        post.likes.push(userId);
+      }
+
+      await post.save();
+
+      res.json({ payload: post });
+    }));
 
 module.exports = router;
