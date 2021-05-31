@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const PostSchema = new mongoose.Schema({
       author: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'user',
+        ref: 'User',
         required: true,
       },
       title: {
@@ -19,7 +19,7 @@ const PostSchema = new mongoose.Schema({
       },
       sectionId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'section',
+        ref: 'Section',
         required: true,
       },
       tags: [
@@ -30,18 +30,35 @@ const PostSchema = new mongoose.Schema({
       likes: [
         {
           user: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'user',
+            type: String,
           },
         }],
     },
     {
+      toJSON: { virtuals: true },
       timestamps: {
         createdAt: 'created_at',
         updatedAt: 'updated_at',
       },
     });
 
-const Post = mongoose.model('posts', PostSchema);
+PostSchema.virtual('comments',
+    {
+      ref: 'Comment',
+      localField: '_id',
+      foreignField: 'postId',
+      justOne: false,
+    });
+
+PostSchema.virtual('commentsCount',
+    {
+      ref: 'Comment',
+      localField: '_id',
+      foreignField: 'postId',
+      count: true,
+      justOne: false,
+    });
+
+const Post = mongoose.model('Post', PostSchema);
 
 module.exports = Post;

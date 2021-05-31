@@ -13,6 +13,7 @@ module.exports = {
     invalidDescription: 'Invalid description',
   },
   comments: {
+    invalidPostId: 'Invalid postId',
     invalidText: 'Invalid text',
   },
 };

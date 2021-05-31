@@ -12,6 +12,7 @@ const dictionary = require('../../../config/errorMessages');
 router.post('/',
     [
       passport.authenticate('jwt', { session: false }),
+      check('postId', dictionary.comments.invalidText).isLength({ min: 3 }),
       check('text', dictionary.comments.invalidText).isLength({ min: 3 }),
     ],
     ash(async (req, res) => {
@@ -21,9 +22,9 @@ router.post('/',
         return res.status(400).json({ errors: errors.array() });
       }
 
-      const { post, text } = req.body;
+      const { postId, text } = req.body;
 
-      const comment = await new Comments({ post, text, author: req.user._id });
+      const comment = await new Comments({ postId, text, author: req.user._id });
       comment.save();
 
       res.json(comment);

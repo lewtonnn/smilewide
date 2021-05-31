@@ -1,0 +1,49 @@
+.one_gag {
+  width: 100%;
+  padding-top: 1rem;
+  margin-bottom: 1.2rem;
+}
+
+.one_gag:not(:first-child) {
+  border-top: 1px solid #e5e5e5;
+}
+
+.gag_container {
+  background-color: #f4f4f4;
+  text-align: center;
+}
+
+.gag_section_name {
+  margin-top: 0;
+  margin-bottom: .8rem;
+  font-size: .8rem;
+}
+
+.gag_header {
+  margin-bottom: .5rem;
+}
+
+.gag_body {
+  margin-bottom: .5rem;
+}
+
+.gag_itself {
+  max-width: 100%;
+  height: auto;
+}
+
+.gag_footer {
+  display: flex;
+  align-items: center;
+}
+
+.gag_footer_block {
+  display: flex;
+  align-items: flex-end;
+  line-height: 1em;
+  cursor: pointer;
+}
+
+.gag_footer_block:not(:first-child) {
+  margin-left: 10px;
+}

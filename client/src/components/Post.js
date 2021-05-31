@@ -1,7 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import '../styles/post.css';
+import { likePost } from '../slices/postSlice';
+import {useDispatch} from 'react-redux';
+import {
+  FaRegComment,
+  FaComment,
+  FaRegThumbsUp,
+  FaThumbsUp,
+} from 'react-icons/fa';
 
 const Post = ({ post }) => {
-  console.log();
+  const [likeHover, setLikeHover] = useState(false);
+  const [commentHover, setCommentHover] = useState(false);
+
+  const dispatch = useDispatch();
+
   return (
       <article className="one_gag">
         <header className="gag_header">
@@ -16,7 +29,23 @@ const Post = ({ post }) => {
           </div>
         </div>
         <div className="gag_footer">
-          <p className="gag_likes">Likes: {post.likes.length}</p>
+          <p className="gag_footer_block likes"
+             onClick={() => dispatch(likePost({ postId: post._id }))}
+             onMouseEnter={() => setLikeHover(true)}
+             onMouseLeave={() => setLikeHover(false)}
+          >
+            {likeHover
+                ? <FaThumbsUp size="1.3em"/>
+                : <FaRegThumbsUp size="1.3em"/>}&nbsp;{post.likes.length}
+          </p>
+          <p className="gag_footer_block comments"
+             onMouseEnter={() => setCommentHover(true)}
+             onMouseLeave={() => setCommentHover(false)}
+          >
+            {commentHover
+                ? <FaComment size="1.3em"/>
+                : <FaRegComment size="1.3em"/>}&nbsp;{post.commentsCount}
+          </p>
         </div>
       </article>
   );

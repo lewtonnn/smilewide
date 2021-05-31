@@ -90,6 +90,14 @@ router.get('/', ash(async (req, res) => {
   res.json({ payload: users, total });
 }));
 
+router.get('/me', passport.authenticate('jwt', { session: false }),
+    ash(async (req, res) => {
+
+      const me = await Users.findById(req.user._id);
+
+      res.json({ payload: me });
+    }));
+
 router.get('/:userId', ash(async (req, res) => {
 
   const userId = req.params.userId;

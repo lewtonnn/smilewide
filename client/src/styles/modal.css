@@ -1,0 +1,27 @@
+.modal_overlay {
+  display: flex;
+  position: fixed;
+  justify-content: center;
+  align-items: flex-start;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+.modal_window {
+  position: relative;
+  width: 40%;
+  margin-top: 5%;
+  background-color: #fff;
+  padding: 3%;
+}
+
+.modal_close {
+  position: absolute;
+  right: 0.7rem;
+  top: 0.7rem;
+  width: 20px;
+  cursor: pointer;
+}

@@ -4,6 +4,7 @@ require('../../../config/passport');
 const { check, validationResult } = require('express-validator');
 const initFileUploader = require('../../../config/multerS3');
 const Posts = require('../../../models/Post');
+const Comments = require('../../../models/Comment');
 const Users = require('../../../models/User');
 const createError = require('http-errors');
 const ash = require('../../../helpers/asyncHandler');
@@ -26,8 +27,11 @@ router.post('/',
       const { title, sectionId, description, tags } = req.body;
       const url = req.files[0].location;
 
-      let tagArray = tags.split(',');
-      tagArray = tagArray.map((tag) => tag.trim());
+      let tagArray = [];
+      if (tags) {
+        tagArray = tags.split(',');
+        tagArray = tagArray.map((tag) => tag.trim());
+      }
 
       const post = await new Posts(
           {
@@ -75,11 +79,19 @@ router.get('/', ash(async (req, res) => {
 
   if (sectionId) {
     total = await Posts.countDocuments({ sectionId });
-    posts = await Posts.find({ sectionId }).skip(+offset).limit(+limit);
+    posts = await Posts.find({ sectionId })
+        .skip(+offset)
+        .limit(+limit)
+        .populate('commentsCount');
   } else {
     total = await Posts.estimatedDocumentCount();
-    posts = await Posts.find().skip(+offset).limit(+limit);
+    posts = await Posts.find()
+        .skip(+offset)
+        .limit(+limit)
+        .populate('commentsCount');
   }
+
+  let commentsCount = await Comments.find({});
 
   res.json({ payload: posts, total });
 }));
@@ -88,7 +100,7 @@ router.get('/:postId', ash(async (req, res) => {
 
   const postId = req.params.postId;
 
-  const post = await Posts.findById(postId);
+  const post = await Posts.findById(postId).populate('comments');
 
   res.json({ payload: post });
 }));
@@ -104,13 +116,11 @@ router.post('/:postId/like', passport.authenticate('jwt', { session: false }),
       let alreadyLiked = false;
 
       post.likes.forEach((like, index) => {
-        console.log(index);
         if (like._id.toString() === userId.toString()) {
-          console.log('id ', like._id);
           post.likes.splice(index, 1);
           alreadyLiked = true;
         }
-        if(alreadyLiked) return false;
+        if (alreadyLiked) return false;
       });
 
       if (!alreadyLiked) {
